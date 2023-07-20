@@ -1,13 +1,14 @@
 require('dotenv').config();
-const { NHentai } = require("@shineiichijo/nhentai-ts");
+const fs = require('node:fs');
+const path = require('node:path');
+const { consola } = require("consola");
+
 const {
   Client,
   IntentsBitField,
+  Collection,
 } = require('discord.js');
 
-const Embed = require('./embed');
-
-const nhentai = new NHentai()
 const client = new Client({
   intents: [
     IntentsBitField.Flags.Guilds,
@@ -17,36 +18,32 @@ const client = new Client({
   ],
 });
 
-client.on('ready', c => {
-  console.log(`🟢 ${c.user.tag} online`);
-})
+const eventsPath = path.join(__dirname, 'events');
+const eventsFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
 
-client.on('interactionCreate', async interaction => {
-  if(!interaction.isChatInputCommand()) return
-
-  switch (interaction.commandName) {
-    case 'nhb_ping':
-      interaction.reply('Pong!');
-      break;
-    case 'nhb_random':
-      try {
-        const random_doujin = await nhentai.getRandom()
-        interaction.reply({ embeds: [Embed(random_doujin)] })
-      } catch (error) {
-        interaction.reply(`Something went wrong, try again later! | ${error}`);
-      }
-      break;
-    case 'nhb_doujin':
-      try {
-        const doujin = await nhentai.getDoujin(interaction.options.get('digits').value)
-        interaction.reply({ embeds: [Embed(doujin)] })
-      } catch (error) {
-        interaction.reply(`[#${interaction.options.get('digits').value}]: ${error}`);
-      }
-      break;
-    default:
-      break;
+for(const file of eventsFiles) {
+  const filePath = path.join(eventsPath, file)
+  const event = require(filePath);
+  if(event.once) {
+    client.once(event.name, (...args) => event.execute(...args))
+  } else {
+    client.on(event.name, (...args) => event.execute(...args))
   }
-});
+}
+
+client.commands = new Collection();
+const commandsPath = path.join(__dirname, 'commands');
+const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+
+for(const file of commandFiles) {
+  const filePath = path.join(commandsPath, file)
+  const command = require(filePath);
+
+  if('data' in command && 'execute' in command) {
+    client.commands.set(command.data.name, command);
+  } else {
+    consola.warn(` The command at ${filePath} is missing "data" or "execute"`)
+  }
+}
 
 client.login(process.env.TOKEN);

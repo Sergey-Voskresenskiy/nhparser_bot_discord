@@ -1,14 +1,22 @@
 const { EmbedBuilder } = require("discord.js");
 
-const listToString = list => {
-  return list.length > 1 ? list.join(', ') : list[0] 
-}
+const listToString = (list) => {
+  return list.length > 1 ? list.join(", ") : list[0];
+};
 
 module.exports = (doujin) => {
   const embedFields = [];
 
   Object.keys(doujin).forEach((field) => {
     switch (field) {
+      case "id": 
+        break;
+        embedFields.push({
+          name: "Id",
+          value: `#${doujin.id}`,
+          inline: true,
+        });
+        break;
       case "languages":
         doujin[field].length &&
           embedFields.push({
@@ -24,6 +32,7 @@ module.exports = (doujin) => {
           });
         break;
       case "characters":
+        break;
         doujin[field].length &&
           embedFields.push({
             name: "Characters",
@@ -31,6 +40,7 @@ module.exports = (doujin) => {
           });
         break;
       case "artists":
+        break;
         doujin[field].length &&
           embedFields.push({
             name: "Artists",
@@ -38,6 +48,7 @@ module.exports = (doujin) => {
           });
         break;
       case "parodies":
+        break;
         doujin[field].length &&
           embedFields.push({
             name: "Parodies:",
@@ -45,6 +56,7 @@ module.exports = (doujin) => {
           });
         break;
       case "categories":
+        break;
         doujin[field].length &&
           embedFields.push({
             name: "Categories",
@@ -75,11 +87,14 @@ module.exports = (doujin) => {
     .setURL(doujin.url)
     .setColor(0xed2553)
     .addFields(...embedFields)
-    .setThumbnail(doujin.cover)
-    .setImage(doujin.cover)
-    .setImage(doujin.images.pages[0])
+    .setThumbnail(
+      "https://clipground.com/images/nhentai-logo-3.jpg" /*doujin.cover*/
+    )
+    .setImage(
+      "https://clipground.com/images/nhentai-logo-3.jpg" /*doujin.images.pages[0]*/
+    )
     .setFooter({
-      text: "by NHentai",
+      text: `Artists: ${listToString(doujin.artists)}`,
       iconURL: "https://clipground.com/images/nhentai-logo-3.jpg",
     }));
 };
