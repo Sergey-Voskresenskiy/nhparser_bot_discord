@@ -10,11 +10,9 @@ module.exports = (doujin) => {
   Object.keys(doujin).forEach((field) => {
     switch (field) {
       case "id": 
-        break;
         embedFields.push({
           name: "Id",
           value: `#${doujin.id}`,
-          inline: true,
         });
         break;
       case "languages":
@@ -32,23 +30,14 @@ module.exports = (doujin) => {
           });
         break;
       case "characters":
-        break;
         doujin[field].length &&
           embedFields.push({
             name: "Characters",
             value: `${listToString(doujin.characters)}`,
-          });
-        break;
-      case "artists":
-        break;
-        doujin[field].length &&
-          embedFields.push({
-            name: "Artists",
-            value: `${listToString(doujin.artists)}`,
+            inline: true,
           });
         break;
       case "parodies":
-        break;
         doujin[field].length &&
           embedFields.push({
             name: "Parodies:",
@@ -56,7 +45,6 @@ module.exports = (doujin) => {
           });
         break;
       case "categories":
-        break;
         doujin[field].length &&
           embedFields.push({
             name: "Categories",
@@ -81,17 +69,17 @@ module.exports = (doujin) => {
     .setAuthor({
       name: "by NHentai",
       iconURL: "https://clipground.com/images/nhentai-logo-3.jpg",
-      url: "https://nhentai.net",
+      url: process.env.NHENTAI_SITE ? process.env.NHENTAI_SITE : "https://nhentai.net",
     })
     .setDescription(`${doujin.originalTitle}`)
     .setURL(doujin.url)
     .setColor(0xed2553)
     .addFields(...embedFields)
     .setThumbnail(
-      "https://clipground.com/images/nhentai-logo-3.jpg" /*doujin.cover*/
+      doujin.cover
     )
     .setImage(
-      "https://clipground.com/images/nhentai-logo-3.jpg" /*doujin.images.pages[0]*/
+      doujin.images.pages[0]
     )
     .setFooter({
       text: `Artists: ${listToString(doujin.artists)}`,

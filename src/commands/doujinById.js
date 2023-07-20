@@ -15,10 +15,17 @@ module.exports = {
 
   async execute(interaction) {
     try {
-      const doujin = await nhentai.getDoujin(
-        interaction.options.getNumber('id')
-      );
-      await interaction.reply({ embeds: [Embed(doujin)] });
+      console.log(interaction)
+
+      if(await nhentai.validate(interaction.options.getNumber('id'))) {
+        const doujin = await nhentai.getDoujin(
+          interaction.options.getNumber('id')
+        );
+        await interaction.reply({ embeds: [Embed(doujin)] });
+      } else {
+        await interaction.reply(`🤡`)
+      }
+
     } catch (error) {
       await interaction.reply(
         `[#${interaction.options.getNumber('id')}]: ${error}`
